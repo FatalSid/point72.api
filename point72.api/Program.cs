@@ -9,12 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllers();
 
-// Configure Entity Framework Core with In-Memory Database
-// This eliminates the need for SQL Server setup and is perfect for development and demonstration
+// Configure Entity Framework Core with SQL Server
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    // Use in-memory database - data persists during application lifetime
-    options.UseInMemoryDatabase("Point72InversionDb");
+    options.UseSqlServer(connectionString);
 
     // Enable detailed errors in development
     if (builder.Environment.IsDevelopment())
@@ -36,12 +35,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Point72 Word Inversion API",
         Version = "v1",
-        Description = "REST API service for inverting words in sentences with persistent storage (in-memory database)",
-        Contact = new()
-        {
-            Name = "Point72 Assessment",
-            Email = "candidate@example.com"
-        }
+        Description = "REST API service for inverting words in sentences with persistent storage"
     });
 
     // Include XML comments for API documentation
@@ -70,27 +64,8 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
-// Ensure the in-memory database is created
-// No migrations needed for in-memory database
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
-
-    try
-    {
-        var context = services.GetRequiredService<ApplicationDbContext>();
-        
-        logger.LogInformation("Ensuring in-memory database is created...");
-        context.Database.EnsureCreated();
-        logger.LogInformation("In-memory database is ready");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "An error occurred while initializing the database");
-        throw;
-    }
-}
+// The block for ensuring in-memory database is created is no longer needed
+// and will be removed. Migrations will handle database creation.
 
 // Configure the HTTP request pipeline
 // Enable Swagger in all environments for demonstration purposes

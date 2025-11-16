@@ -126,4 +126,10 @@ node_modules/
 *.log
 *.tmp
 *.temp
-launchSettings.json
+
+# Local configuration files with sensitive data
+appsettings.Local.json
+appsettings.*.Local.json
+
+# Temporary SQL scripts
+*.sql
